@@ -14,7 +14,7 @@ services:
     ports:
       - "3055:80"
     volumes:
-      - ./volumes/hdfs:/srv
+      - ./spark/data:/srv
       - filebrowser_database:/database
       - filebrowser_config:/config
     restart: unless-stopped
@@ -38,7 +38,7 @@ services:
       - "7077:7077"
       - "8080:8080"
     volumes:
-      - ./volumes/hdfs:/opt/spark-data
+      - ./spark/data:/opt/spark-data
     restart: unless-stopped
     networks:
       - bigdata-net
@@ -62,7 +62,7 @@ services:
     ports:
       - "8081:8081"
     volumes:
-      - ./volumes/hdfs:/opt/spark-data
+      - ./spark/data:/opt/spark-data
     restart: unless-stopped
     networks:
       - bigdata-net
@@ -86,15 +86,15 @@ services:
     ports:
       - "8082:8081"
     volumes:
-      - ./volumes/hdfs:/opt/spark-data
+      - ./spark/data:/opt/spark-data
     restart: unless-stopped
     networks:
       - bigdata-net
 
   jupyter:
     image: quay.io/jupyter/pyspark-notebook:spark-3.5.0
-    container_name: compute-bigdata
-    hostname: compute-bigdata
+    container_name: notebooks
+    hostname: notebooks
     user: root
     depends_on:
       - spark-master
@@ -114,9 +114,9 @@ services:
       - "4041:4041"
       - "4042:4042"
     volumes:
-      - ./volumes/hdfs:/opt/spark-data
-      - ./volumes/hdfs:/home/jovyan/hdfs
-      - ./volumes/compute-bigdata:/home/jovyan/work
+      - ./spark/data:/opt/spark-data
+      - ./spark/data:/home/jovyan/data
+      - ./spark/notebooks:/home/jovyan/work
     restart: unless-stopped
     networks:
       - bigdata-net
