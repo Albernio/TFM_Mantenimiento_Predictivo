@@ -12,13 +12,71 @@
     <parameter key="process_duration_for_mail" value="30"/>
     <parameter key="encoding" value="SYSTEM"/>
     <process expanded="true">
-      <operator activated="true" class="retrieve" compatibility="12.0.005" expanded="true" height="68" name="Retrieve TRAIN_FD001_RUL" width="90" x="179" y="85">
-        <parameter key="repository_entry" value="//TFM/data/TRAIN_FD001_RUL"/>
+      <operator activated="true" class="retrieve" compatibility="12.0.005" expanded="true" height="68" name="Retrieve TEST_FD001_RUL" width="90" x="112" y="187">
+        <parameter key="repository_entry" value="../data/TEST_FD001_RUL"/>
       </operator>
-      <connect from_op="Retrieve TRAIN_FD001_RUL" from_port="output" to_port="result 1"/>
+      <operator activated="true" class="blending:generate_columns" compatibility="12.0.005" expanded="true" height="82" name="TEST Generate risk_level" width="90" x="313" y="187">
+        <list key="function_descriptions">
+          <parameter key="risk_level" value="if(RUL &lt;= 30, &quot;Alto&quot;, if(RUL &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+          <parameter key="risk_level_capped" value="if(RUL_capado &lt;= 30, &quot;Alto&quot;, if(RUL_capado &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+        </list>
+        <parameter key="keep_all_columns" value="true"/>
+        <parameter key="default_time_zone" value="Europe/Madrid"/>
+      </operator>
+      <operator activated="true" class="retrieve" compatibility="12.0.005" expanded="true" height="68" name="Retrieve TRAIN_FD001_RUL" width="90" x="112" y="85">
+        <parameter key="repository_entry" value="../data/TRAIN_FD001_RUL"/>
+      </operator>
+      <operator activated="true" class="blending:generate_columns" compatibility="12.0.005" expanded="true" height="82" name="TRAIN Generate risk_level" width="90" x="313" y="85">
+        <list key="function_descriptions">
+          <parameter key="risk_level" value="if(RUL &lt;= 30, &quot;Alto&quot;, if(RUL &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+          <parameter key="risk_level_capped" value="if(RUL_capado &lt;= 30, &quot;Alto&quot;, if(RUL_capado &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+        </list>
+        <parameter key="keep_all_columns" value="true"/>
+        <parameter key="default_time_zone" value="Europe/Madrid"/>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="12.0.005" expanded="true" height="103" name="Experimento 1" width="90" x="648" y="85">
+        <process expanded="true">
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level (test)" width="90" x="45" y="136">
+            <list key="set_roles">
+              <parameter key="risk_level" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="Select Attributes TEST" width="90" x="179" y="136">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="risk_level_capped␞RUL␞RUL_capado␞time_in_cycles␞unit_number"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level (train)" width="90" x="45" y="34">
+            <list key="set_roles">
+              <parameter key="risk_level" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="Select Attributes TRAIN" width="90" x="179" y="34">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="risk_level_capped␞RUL␞RUL_capado␞unit_number␞time_in_cycles"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <connect from_port="in 1" to_op="Label = risk_level (train)" to_port="example set input"/>
+          <connect from_port="in 2" to_op="Label = risk_level (test)" to_port="example set input"/>
+          <connect from_op="Label = risk_level (test)" from_port="example set output" to_op="Select Attributes TEST" to_port="example set input"/>
+          <connect from_op="Label = risk_level (train)" from_port="example set output" to_op="Select Attributes TRAIN" to_port="example set input"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="source_in 3" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <description align="center" color="yellow" colored="false" height="157" resized="false" width="180" x="1139" y="799">EXPERIMENTO 1&lt;br&gt;&lt;br&gt;- Random Forest&lt;br/&gt;- Label = risk_level&lt;br&gt;- Se excluyen unit_number, time_in_cycles,&lt;br&gt;RUL, RUL_capado, risk_level_capped.</description>
+        </process>
+      </operator>
+      <connect from_op="Retrieve TEST_FD001_RUL" from_port="output" to_op="TEST Generate risk_level" to_port="table input"/>
+      <connect from_op="TEST Generate risk_level" from_port="table output" to_op="Experimento 1" to_port="in 2"/>
+      <connect from_op="Retrieve TRAIN_FD001_RUL" from_port="output" to_op="TRAIN Generate risk_level" to_port="table input"/>
+      <connect from_op="TRAIN Generate risk_level" from_port="table output" to_op="Experimento 1" to_port="in 1"/>
       <portSpacing port="source_input 1" spacing="0"/>
       <portSpacing port="sink_result 1" spacing="0"/>
-      <portSpacing port="sink_result 2" spacing="0"/>
     </process>
   </operator>
 </process>
