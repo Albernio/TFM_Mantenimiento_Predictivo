@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="12.0.005">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="12.0.005" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="12.0.005" expanded="true" height="68" name="Retrieve TEST_FD001_FINAL" width="90" x="179" y="187">
+        <parameter key="repository_entry" value="//TFM/data/TEST_FD001_FINAL"/>
+      </operator>
+      <operator activated="true" class="retrieve" compatibility="12.0.005" expanded="true" height="68" name="Retrieve TRAIN_FD001_FINAL" width="90" x="179" y="85">
+        <parameter key="repository_entry" value="//TFM/data/TRAIN_FD001_FINAL"/>
+      </operator>
+      <operator activated="true" class="multiply" compatibility="12.0.005" expanded="true" height="103" name="Multiply" width="90" x="313" y="85"/>
+      <operator activated="true" class="multiply" compatibility="12.0.005" expanded="true" height="103" name="Multiply (2)" width="90" x="313" y="187"/>
+      <operator activated="true" class="subprocess" compatibility="12.0.005" expanded="true" height="124" name="Experimento 1" width="90" x="447" y="85">
+        <process expanded="true">
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level_capped (2)" width="90" x="45" y="136">
+            <list key="set_roles">
+              <parameter key="risk_level_capped" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TEST (Select)" width="90" x="179" y="136">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="risk_level␞RUL␞RUL_capado␞unit_number"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level_capped" width="90" x="45" y="34">
+            <list key="set_roles">
+              <parameter key="risk_level_capped" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TRAIN (Select)" width="90" x="179" y="34">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="risk_level␞RUL␞RUL_capado␞unit_number"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="naive_bayes" compatibility="12.0.005" expanded="true" height="82" name="Naive Bayes" width="90" x="514" y="34">
+            <parameter key="laplace_correction" value="true"/>
+          </operator>
+          <operator activated="true" class="apply_model" compatibility="12.0.005" expanded="true" height="82" name="Apply Model (e1)" width="90" x="715" y="136">
+            <list key="application_parameters"/>
+          </operator>
+          <operator activated="true" class="performance_classification" compatibility="12.0.005" expanded="true" height="82" name="Performance (e1)" width="90" x="916" y="34">
+            <parameter key="main_criterion" value="first"/>
+            <parameter key="accuracy" value="true"/>
+            <parameter key="classification_error" value="false"/>
+            <parameter key="kappa" value="false"/>
+            <parameter key="weighted_mean_recall" value="false"/>
+            <parameter key="weighted_mean_precision" value="false"/>
+            <parameter key="spearman_rho" value="false"/>
+            <parameter key="kendall_tau" value="false"/>
+            <parameter key="absolute_error" value="false"/>
+            <parameter key="relative_error" value="false"/>
+            <parameter key="relative_error_lenient" value="false"/>
+            <parameter key="relative_error_strict" value="false"/>
+            <parameter key="normalized_absolute_error" value="false"/>
+            <parameter key="root_mean_squared_error" value="false"/>
+            <parameter key="root_relative_squared_error" value="false"/>
+            <parameter key="squared_error" value="false"/>
+            <parameter key="correlation" value="false"/>
+            <parameter key="squared_correlation" value="false"/>
+            <parameter key="cross-entropy" value="false"/>
+            <parameter key="margin" value="false"/>
+            <parameter key="soft_margin_loss" value="false"/>
+            <parameter key="logistic_loss" value="false"/>
+            <parameter key="skip_undefined_labels" value="true"/>
+            <parameter key="use_example_weights" value="true"/>
+            <list key="class_weights"/>
+          </operator>
+          <connect from_port="in 1" to_op="Label = risk_level_capped" to_port="example set input"/>
+          <connect from_port="in 2" to_op="Label = risk_level_capped (2)" to_port="example set input"/>
+          <connect from_op="Label = risk_level_capped (2)" from_port="example set output" to_op="TEST (Select)" to_port="example set input"/>
+          <connect from_op="TEST (Select)" from_port="example set output" to_op="Apply Model (e1)" to_port="unlabelled data"/>
+          <connect from_op="Label = risk_level_capped" from_port="example set output" to_op="TRAIN (Select)" to_port="example set input"/>
+          <connect from_op="TRAIN (Select)" from_port="example set output" to_op="Naive Bayes" to_port="training set"/>
+          <connect from_op="Naive Bayes" from_port="model" to_op="Apply Model (e1)" to_port="model"/>
+          <connect from_op="Apply Model (e1)" from_port="labelled data" to_op="Performance (e1)" to_port="labelled data"/>
+          <connect from_op="Apply Model (e1)" from_port="model" to_port="out 3"/>
+          <connect from_op="Performance (e1)" from_port="performance" to_port="out 1"/>
+          <connect from_op="Performance (e1)" from_port="example set" to_port="out 2"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="source_in 3" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+          <portSpacing port="sink_out 3" spacing="0"/>
+          <portSpacing port="sink_out 4" spacing="0"/>
+          <description align="center" color="yellow" colored="false" height="105" resized="false" width="180" x="1023" y="472">Label = risk_level_capped&lt;br&gt;&lt;br&gt;Exluidas: RUL, RUL_capado, unit_number, risk_level&lt;br&gt;</description>
+        </process>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="12.0.005" expanded="true" height="124" name="Experimento 2" width="90" x="447" y="238">
+        <process expanded="true">
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level_capped (3)" width="90" x="45" y="136">
+            <list key="set_roles">
+              <parameter key="risk_level" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TEST (Select) (2)" width="90" x="179" y="136">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="RUL␞RUL_capado␞unit_number␞risk_level_capped"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level_capped (4)" width="90" x="45" y="34">
+            <list key="set_roles">
+              <parameter key="risk_level" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TRAIN (Select) (2)" width="90" x="179" y="34">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="RUL␞RUL_capado␞unit_number␞risk_level_capped"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="naive_bayes" compatibility="12.0.005" expanded="true" height="82" name="Naive Bayes (2)" width="90" x="514" y="34">
+            <parameter key="laplace_correction" value="true"/>
+          </operator>
+          <operator activated="true" class="apply_model" compatibility="12.0.005" expanded="true" height="82" name="Apply Model (e2)" width="90" x="715" y="136">
+            <list key="application_parameters"/>
+          </operator>
+          <operator activated="true" class="performance_classification" compatibility="12.0.005" expanded="true" height="82" name="Performance (e2)" width="90" x="916" y="34">
+            <parameter key="main_criterion" value="first"/>
+            <parameter key="accuracy" value="true"/>
+            <parameter key="classification_error" value="false"/>
+            <parameter key="kappa" value="false"/>
+            <parameter key="weighted_mean_recall" value="false"/>
+            <parameter key="weighted_mean_precision" value="false"/>
+            <parameter key="spearman_rho" value="false"/>
+            <parameter key="kendall_tau" value="false"/>
+            <parameter key="absolute_error" value="false"/>
+            <parameter key="relative_error" value="false"/>
+            <parameter key="relative_error_lenient" value="false"/>
+            <parameter key="relative_error_strict" value="false"/>
+            <parameter key="normalized_absolute_error" value="false"/>
+            <parameter key="root_mean_squared_error" value="false"/>
+            <parameter key="root_relative_squared_error" value="false"/>
+            <parameter key="squared_error" value="false"/>
+            <parameter key="correlation" value="false"/>
+            <parameter key="squared_correlation" value="false"/>
+            <parameter key="cross-entropy" value="false"/>
+            <parameter key="margin" value="false"/>
+            <parameter key="soft_margin_loss" value="false"/>
+            <parameter key="logistic_loss" value="false"/>
+            <parameter key="skip_undefined_labels" value="true"/>
+            <parameter key="use_example_weights" value="true"/>
+            <list key="class_weights"/>
+          </operator>
+          <connect from_port="in 1" to_op="Label = risk_level_capped (4)" to_port="example set input"/>
+          <connect from_port="in 2" to_op="Label = risk_level_capped (3)" to_port="example set input"/>
+          <connect from_op="Label = risk_level_capped (3)" from_port="example set output" to_op="TEST (Select) (2)" to_port="example set input"/>
+          <connect from_op="TEST (Select) (2)" from_port="example set output" to_op="Apply Model (e2)" to_port="unlabelled data"/>
+          <connect from_op="Label = risk_level_capped (4)" from_port="example set output" to_op="TRAIN (Select) (2)" to_port="example set input"/>
+          <connect from_op="TRAIN (Select) (2)" from_port="example set output" to_op="Naive Bayes (2)" to_port="training set"/>
+          <connect from_op="Naive Bayes (2)" from_port="model" to_op="Apply Model (e2)" to_port="model"/>
+          <connect from_op="Apply Model (e2)" from_port="labelled data" to_op="Performance (e2)" to_port="labelled data"/>
+          <connect from_op="Apply Model (e2)" from_port="model" to_port="out 3"/>
+          <connect from_op="Performance (e2)" from_port="performance" to_port="out 1"/>
+          <connect from_op="Performance (e2)" from_port="example set" to_port="out 2"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="source_in 3" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+          <portSpacing port="sink_out 3" spacing="0"/>
+          <portSpacing port="sink_out 4" spacing="0"/>
+          <description align="center" color="yellow" colored="false" height="105" resized="false" width="180" x="1097" y="438">Label = risk_level&lt;br/&gt;&lt;br/&gt;Exluidas: RUL, RUL_capado, unit_number, risk_level_capped&lt;br/&gt;</description>
+        </process>
+      </operator>
+      <connect from_op="Retrieve TEST_FD001_FINAL" from_port="output" to_op="Multiply (2)" to_port="input"/>
+      <connect from_op="Retrieve TRAIN_FD001_FINAL" from_port="output" to_op="Multiply" to_port="input"/>
+      <connect from_op="Multiply" from_port="output 1" to_op="Experimento 1" to_port="in 1"/>
+      <connect from_op="Multiply" from_port="output 2" to_op="Experimento 2" to_port="in 1"/>
+      <connect from_op="Multiply (2)" from_port="output 1" to_op="Experimento 1" to_port="in 2"/>
+      <connect from_op="Multiply (2)" from_port="output 2" to_op="Experimento 2" to_port="in 2"/>
+      <connect from_op="Experimento 1" from_port="out 1" to_port="result 1"/>
+      <connect from_op="Experimento 1" from_port="out 2" to_port="result 2"/>
+      <connect from_op="Experimento 1" from_port="out 3" to_port="result 3"/>
+      <connect from_op="Experimento 2" from_port="out 1" to_port="result 4"/>
+      <connect from_op="Experimento 2" from_port="out 2" to_port="result 5"/>
+      <connect from_op="Experimento 2" from_port="out 3" to_port="result 6"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+      <portSpacing port="sink_result 4" spacing="0"/>
+      <portSpacing port="sink_result 5" spacing="0"/>
+      <portSpacing port="sink_result 6" spacing="0"/>
+      <portSpacing port="sink_result 7" spacing="0"/>
+    </process>
+  </operator>
+</process>

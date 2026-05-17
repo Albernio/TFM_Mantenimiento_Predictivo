@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="12.0.005">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="12.0.005" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="12.0.005" expanded="true" height="68" name="Retrieve TEST_FD001_FINAL" width="90" x="313" y="238">
+        <parameter key="repository_entry" value="../data/TEST_FD001_FINAL"/>
+      </operator>
+      <operator activated="true" class="multiply" compatibility="12.0.005" expanded="true" height="145" name="Multiply (2)" width="90" x="581" y="238"/>
+      <operator activated="true" class="retrieve" compatibility="12.0.005" expanded="true" height="68" name="Retrieve TRAIN_FD001_FINAL" width="90" x="313" y="85">
+        <parameter key="repository_entry" value="../data/TRAIN_FD001_FINAL"/>
+      </operator>
+      <operator activated="true" class="multiply" compatibility="12.0.005" expanded="true" height="145" name="Multiply" width="90" x="581" y="85"/>
+      <operator activated="true" class="subprocess" compatibility="12.0.005" expanded="true" height="124" name="Experimento 4" width="90" x="782" y="544">
+        <process expanded="true">
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level (test)" width="90" x="45" y="136">
+            <list key="set_roles">
+              <parameter key="risk_level" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TEST (Select) (4)" width="90" x="179" y="136">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="RUL␞RUL_capado␞unit_number␞risk_level_capped"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level (train) (3)" width="90" x="45" y="34">
+            <list key="set_roles">
+              <parameter key="risk_level" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TRAIN (Select) (4)" width="90" x="179" y="34">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="RUL␞RUL_capado␞unit_number␞risk_level_capped"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="concurrency:parallel_random_forest" compatibility="12.0.005" expanded="true" height="103" name="Random Forest (4)" width="90" x="447" y="34">
+            <parameter key="number_of_trees" value="200"/>
+            <parameter key="criterion" value="gain_ratio"/>
+            <parameter key="maximal_depth" value="10"/>
+            <parameter key="apply_pruning" value="false"/>
+            <parameter key="confidence" value="0.1"/>
+            <parameter key="apply_prepruning" value="true"/>
+            <parameter key="minimal_gain" value="0.01"/>
+            <parameter key="minimal_leaf_size" value="2"/>
+            <parameter key="minimal_size_for_split" value="4"/>
+            <parameter key="number_of_prepruning_alternatives" value="3"/>
+            <parameter key="random_splits" value="false"/>
+            <parameter key="guess_subset_ratio" value="true"/>
+            <parameter key="subset_ratio" value="0.2"/>
+            <parameter key="voting_strategy" value="confidence vote"/>
+            <parameter key="use_local_random_seed" value="false"/>
+            <parameter key="local_random_seed" value="1992"/>
+            <parameter key="enable_parallel_execution" value="true"/>
+          </operator>
+          <operator activated="true" class="apply_model" compatibility="12.0.005" expanded="true" height="82" name="Apply Model (E4)" width="90" x="648" y="136">
+            <list key="application_parameters"/>
+          </operator>
+          <operator activated="true" class="performance_classification" compatibility="12.0.005" expanded="true" height="82" name="Performance (E4)" width="90" x="916" y="34">
+            <parameter key="main_criterion" value="first"/>
+            <parameter key="accuracy" value="true"/>
+            <parameter key="classification_error" value="false"/>
+            <parameter key="kappa" value="false"/>
+            <parameter key="weighted_mean_recall" value="false"/>
+            <parameter key="weighted_mean_precision" value="false"/>
+            <parameter key="spearman_rho" value="false"/>
+            <parameter key="kendall_tau" value="false"/>
+            <parameter key="absolute_error" value="false"/>
+            <parameter key="relative_error" value="false"/>
+            <parameter key="relative_error_lenient" value="false"/>
+            <parameter key="relative_error_strict" value="false"/>
+            <parameter key="normalized_absolute_error" value="false"/>
+            <parameter key="root_mean_squared_error" value="false"/>
+            <parameter key="root_relative_squared_error" value="false"/>
+            <parameter key="squared_error" value="false"/>
+            <parameter key="correlation" value="false"/>
+            <parameter key="squared_correlation" value="false"/>
+            <parameter key="cross-entropy" value="false"/>
+            <parameter key="margin" value="false"/>
+            <parameter key="soft_margin_loss" value="false"/>
+            <parameter key="logistic_loss" value="false"/>
+            <parameter key="skip_undefined_labels" value="true"/>
+            <parameter key="use_example_weights" value="true"/>
+            <list key="class_weights"/>
+          </operator>
+          <connect from_port="in 1" to_op="Label = risk_level (train) (3)" to_port="example set input"/>
+          <connect from_port="in 2" to_op="Label = risk_level (test)" to_port="example set input"/>
+          <connect from_op="Label = risk_level (test)" from_port="example set output" to_op="TEST (Select) (4)" to_port="example set input"/>
+          <connect from_op="TEST (Select) (4)" from_port="example set output" to_op="Apply Model (E4)" to_port="unlabelled data"/>
+          <connect from_op="Label = risk_level (train) (3)" from_port="example set output" to_op="TRAIN (Select) (4)" to_port="example set input"/>
+          <connect from_op="TRAIN (Select) (4)" from_port="example set output" to_op="Random Forest (4)" to_port="training set"/>
+          <connect from_op="Random Forest (4)" from_port="model" to_op="Apply Model (E4)" to_port="model"/>
+          <connect from_op="Apply Model (E4)" from_port="labelled data" to_op="Performance (E4)" to_port="labelled data"/>
+          <connect from_op="Apply Model (E4)" from_port="model" to_port="out 3"/>
+          <connect from_op="Performance (E4)" from_port="performance" to_port="out 1"/>
+          <connect from_op="Performance (E4)" from_port="example set" to_port="out 2"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="source_in 3" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+          <portSpacing port="sink_out 3" spacing="0"/>
+          <portSpacing port="sink_out 4" spacing="0"/>
+          <description align="center" color="yellow" colored="false" height="175" resized="false" width="180" x="1136" y="799">EXPERIMENTO 1&lt;br&gt;&lt;br&gt;- Random Forest&lt;br&gt;- Label = risk_level&lt;br&gt;- Se excluyen unit_number,&lt;br&gt;RUL, RUL_capado, risk_level_capped.</description>
+        </process>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="12.0.005" expanded="true" height="124" name="Experimento 3" width="90" x="782" y="391">
+        <process expanded="true">
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level_capped(test) (2)" width="90" x="45" y="136">
+            <list key="set_roles">
+              <parameter key="risk_level_capped" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TEST (Select) (3)" width="90" x="179" y="136">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="risk_level_capped␞RUL␞RUL_capado␞unit_number"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level_capped (train) (2)" width="90" x="45" y="34">
+            <list key="set_roles">
+              <parameter key="risk_level_capped" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TRAIN (Select) (3)" width="90" x="179" y="34">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="risk_level␞RUL␞RUL_capado␞unit_number"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="concurrency:parallel_random_forest" compatibility="12.0.005" expanded="true" height="103" name="Random Forest (3)" width="90" x="447" y="34">
+            <parameter key="number_of_trees" value="200"/>
+            <parameter key="criterion" value="gain_ratio"/>
+            <parameter key="maximal_depth" value="10"/>
+            <parameter key="apply_pruning" value="false"/>
+            <parameter key="confidence" value="0.1"/>
+            <parameter key="apply_prepruning" value="true"/>
+            <parameter key="minimal_gain" value="0.01"/>
+            <parameter key="minimal_leaf_size" value="2"/>
+            <parameter key="minimal_size_for_split" value="4"/>
+            <parameter key="number_of_prepruning_alternatives" value="3"/>
+            <parameter key="random_splits" value="false"/>
+            <parameter key="guess_subset_ratio" value="true"/>
+            <parameter key="subset_ratio" value="0.2"/>
+            <parameter key="voting_strategy" value="confidence vote"/>
+            <parameter key="use_local_random_seed" value="false"/>
+            <parameter key="local_random_seed" value="1992"/>
+            <parameter key="enable_parallel_execution" value="true"/>
+          </operator>
+          <operator activated="true" class="apply_model" compatibility="12.0.005" expanded="true" height="82" name="Apply Model (E3)" width="90" x="648" y="136">
+            <list key="application_parameters"/>
+          </operator>
+          <operator activated="true" class="performance_classification" compatibility="12.0.005" expanded="true" height="82" name="Performance (E3)" width="90" x="916" y="34">
+            <parameter key="main_criterion" value="first"/>
+            <parameter key="accuracy" value="true"/>
+            <parameter key="classification_error" value="false"/>
+            <parameter key="kappa" value="false"/>
+            <parameter key="weighted_mean_recall" value="false"/>
+            <parameter key="weighted_mean_precision" value="false"/>
+            <parameter key="spearman_rho" value="false"/>
+            <parameter key="kendall_tau" value="false"/>
+            <parameter key="absolute_error" value="false"/>
+            <parameter key="relative_error" value="false"/>
+            <parameter key="relative_error_lenient" value="false"/>
+            <parameter key="relative_error_strict" value="false"/>
+            <parameter key="normalized_absolute_error" value="false"/>
+            <parameter key="root_mean_squared_error" value="false"/>
+            <parameter key="root_relative_squared_error" value="false"/>
+            <parameter key="squared_error" value="false"/>
+            <parameter key="correlation" value="false"/>
+            <parameter key="squared_correlation" value="false"/>
+            <parameter key="cross-entropy" value="false"/>
+            <parameter key="margin" value="false"/>
+            <parameter key="soft_margin_loss" value="false"/>
+            <parameter key="logistic_loss" value="false"/>
+            <parameter key="skip_undefined_labels" value="true"/>
+            <parameter key="use_example_weights" value="true"/>
+            <list key="class_weights"/>
+          </operator>
+          <connect from_port="in 1" to_op="Label = risk_level_capped (train) (2)" to_port="example set input"/>
+          <connect from_port="in 2" to_op="Label = risk_level_capped(test) (2)" to_port="example set input"/>
+          <connect from_op="Label = risk_level_capped(test) (2)" from_port="example set output" to_op="TEST (Select) (3)" to_port="example set input"/>
+          <connect from_op="TEST (Select) (3)" from_port="example set output" to_op="Apply Model (E3)" to_port="unlabelled data"/>
+          <connect from_op="Label = risk_level_capped (train) (2)" from_port="example set output" to_op="TRAIN (Select) (3)" to_port="example set input"/>
+          <connect from_op="TRAIN (Select) (3)" from_port="example set output" to_op="Random Forest (3)" to_port="training set"/>
+          <connect from_op="Random Forest (3)" from_port="model" to_op="Apply Model (E3)" to_port="model"/>
+          <connect from_op="Apply Model (E3)" from_port="labelled data" to_op="Performance (E3)" to_port="labelled data"/>
+          <connect from_op="Apply Model (E3)" from_port="model" to_port="out 3"/>
+          <connect from_op="Performance (E3)" from_port="performance" to_port="out 1"/>
+          <connect from_op="Performance (E3)" from_port="example set" to_port="out 2"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="source_in 3" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+          <portSpacing port="sink_out 3" spacing="0"/>
+          <portSpacing port="sink_out 4" spacing="0"/>
+          <description align="center" color="yellow" colored="false" height="175" resized="false" width="180" x="1137" y="799">EXPERIMENTO 1&lt;br&gt;&lt;br&gt;- Random Forest&lt;br&gt;- Label = risk_level_capped&lt;br&gt;- Se excluyen unit_number,&lt;br&gt;RUL, RUL_capado, risk_level.</description>
+        </process>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="12.0.005" expanded="true" height="124" name="Experimento 1" width="90" x="782" y="85">
+        <process expanded="true">
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level_capped (test)" width="90" x="45" y="136">
+            <list key="set_roles">
+              <parameter key="risk_level_capped" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TEST (Select)" width="90" x="179" y="136">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="RUL␞RUL_capado␞time_in_cycles␞unit_number␞risk_level"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level_capped (train)" width="90" x="45" y="34">
+            <list key="set_roles">
+              <parameter key="risk_level_capped" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TRAIN (Select)" width="90" x="179" y="34">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="risk_level␞RUL␞RUL_capado␞time_in_cycles␞unit_number"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="concurrency:parallel_random_forest" compatibility="12.0.005" expanded="true" height="103" name="Random Forest" width="90" x="447" y="34">
+            <parameter key="number_of_trees" value="200"/>
+            <parameter key="criterion" value="gain_ratio"/>
+            <parameter key="maximal_depth" value="10"/>
+            <parameter key="apply_pruning" value="false"/>
+            <parameter key="confidence" value="0.1"/>
+            <parameter key="apply_prepruning" value="true"/>
+            <parameter key="minimal_gain" value="0.01"/>
+            <parameter key="minimal_leaf_size" value="2"/>
+            <parameter key="minimal_size_for_split" value="4"/>
+            <parameter key="number_of_prepruning_alternatives" value="3"/>
+            <parameter key="random_splits" value="false"/>
+            <parameter key="guess_subset_ratio" value="true"/>
+            <parameter key="subset_ratio" value="0.2"/>
+            <parameter key="voting_strategy" value="confidence vote"/>
+            <parameter key="use_local_random_seed" value="false"/>
+            <parameter key="local_random_seed" value="1992"/>
+            <parameter key="enable_parallel_execution" value="true"/>
+          </operator>
+          <operator activated="true" class="apply_model" compatibility="12.0.005" expanded="true" height="82" name="Apply Model (E1)" width="90" x="648" y="136">
+            <list key="application_parameters"/>
+          </operator>
+          <operator activated="true" class="performance_classification" compatibility="12.0.005" expanded="true" height="82" name="Performance (E1)" width="90" x="916" y="34">
+            <parameter key="main_criterion" value="first"/>
+            <parameter key="accuracy" value="true"/>
+            <parameter key="classification_error" value="false"/>
+            <parameter key="kappa" value="false"/>
+            <parameter key="weighted_mean_recall" value="false"/>
+            <parameter key="weighted_mean_precision" value="false"/>
+            <parameter key="spearman_rho" value="false"/>
+            <parameter key="kendall_tau" value="false"/>
+            <parameter key="absolute_error" value="false"/>
+            <parameter key="relative_error" value="false"/>
+            <parameter key="relative_error_lenient" value="false"/>
+            <parameter key="relative_error_strict" value="false"/>
+            <parameter key="normalized_absolute_error" value="false"/>
+            <parameter key="root_mean_squared_error" value="false"/>
+            <parameter key="root_relative_squared_error" value="false"/>
+            <parameter key="squared_error" value="false"/>
+            <parameter key="correlation" value="false"/>
+            <parameter key="squared_correlation" value="false"/>
+            <parameter key="cross-entropy" value="false"/>
+            <parameter key="margin" value="false"/>
+            <parameter key="soft_margin_loss" value="false"/>
+            <parameter key="logistic_loss" value="false"/>
+            <parameter key="skip_undefined_labels" value="true"/>
+            <parameter key="use_example_weights" value="true"/>
+            <list key="class_weights"/>
+          </operator>
+          <connect from_port="in 1" to_op="Label = risk_level_capped (train)" to_port="example set input"/>
+          <connect from_port="in 2" to_op="Label = risk_level_capped (test)" to_port="example set input"/>
+          <connect from_op="Label = risk_level_capped (test)" from_port="example set output" to_op="TEST (Select)" to_port="example set input"/>
+          <connect from_op="TEST (Select)" from_port="example set output" to_op="Apply Model (E1)" to_port="unlabelled data"/>
+          <connect from_op="Label = risk_level_capped (train)" from_port="example set output" to_op="TRAIN (Select)" to_port="example set input"/>
+          <connect from_op="TRAIN (Select)" from_port="example set output" to_op="Random Forest" to_port="training set"/>
+          <connect from_op="Random Forest" from_port="model" to_op="Apply Model (E1)" to_port="model"/>
+          <connect from_op="Apply Model (E1)" from_port="labelled data" to_op="Performance (E1)" to_port="labelled data"/>
+          <connect from_op="Apply Model (E1)" from_port="model" to_port="out 3"/>
+          <connect from_op="Performance (E1)" from_port="performance" to_port="out 1"/>
+          <connect from_op="Performance (E1)" from_port="example set" to_port="out 2"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="source_in 3" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+          <portSpacing port="sink_out 3" spacing="0"/>
+          <portSpacing port="sink_out 4" spacing="0"/>
+          <description align="center" color="yellow" colored="false" height="157" resized="false" width="180" x="1141" y="799">EXPERIMENTO 1&lt;br&gt;&lt;br&gt;- Random Forest&lt;br&gt;- Label = risk_level_capped&lt;br&gt;- Se excluyen unit_number, time_in_cycles,&lt;br&gt;RUL, RUL_capado, risk_level.</description>
+        </process>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="12.0.005" expanded="true" height="124" name="Experimento 2" width="90" x="782" y="238">
+        <process expanded="true">
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level(test)" width="90" x="45" y="136">
+            <list key="set_roles">
+              <parameter key="risk_level" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TEST (Select) (2)" width="90" x="179" y="136">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="RUL␞RUL_capado␞time_in_cycles␞unit_number␞risk_level_capped"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="blending:set_role" compatibility="12.0.005" expanded="true" height="82" name="Label = risk_level (train)" width="90" x="45" y="34">
+            <list key="set_roles">
+              <parameter key="risk_level" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="12.0.005" expanded="true" height="82" name="TRAIN (Select) (2)" width="90" x="179" y="34">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="a subset"/>
+            <parameter key="select_attribute" value=""/>
+            <parameter key="select_subset" value="RUL␞RUL_capado␞time_in_cycles␞unit_number␞risk_level_capped"/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <operator activated="true" class="concurrency:parallel_random_forest" compatibility="12.0.005" expanded="true" height="103" name="Random Forest (2)" width="90" x="447" y="34">
+            <parameter key="number_of_trees" value="200"/>
+            <parameter key="criterion" value="gain_ratio"/>
+            <parameter key="maximal_depth" value="10"/>
+            <parameter key="apply_pruning" value="false"/>
+            <parameter key="confidence" value="0.1"/>
+            <parameter key="apply_prepruning" value="true"/>
+            <parameter key="minimal_gain" value="0.01"/>
+            <parameter key="minimal_leaf_size" value="2"/>
+            <parameter key="minimal_size_for_split" value="4"/>
+            <parameter key="number_of_prepruning_alternatives" value="3"/>
+            <parameter key="random_splits" value="false"/>
+            <parameter key="guess_subset_ratio" value="true"/>
+            <parameter key="subset_ratio" value="0.2"/>
+            <parameter key="voting_strategy" value="confidence vote"/>
+            <parameter key="use_local_random_seed" value="false"/>
+            <parameter key="local_random_seed" value="1992"/>
+            <parameter key="enable_parallel_execution" value="true"/>
+          </operator>
+          <operator activated="true" class="apply_model" compatibility="12.0.005" expanded="true" height="82" name="Apply Model (E2)" width="90" x="648" y="136">
+            <list key="application_parameters"/>
+          </operator>
+          <operator activated="true" class="performance_classification" compatibility="12.0.005" expanded="true" height="82" name="Performance (E2)" width="90" x="916" y="34">
+            <parameter key="main_criterion" value="first"/>
+            <parameter key="accuracy" value="true"/>
+            <parameter key="classification_error" value="false"/>
+            <parameter key="kappa" value="false"/>
+            <parameter key="weighted_mean_recall" value="false"/>
+            <parameter key="weighted_mean_precision" value="false"/>
+            <parameter key="spearman_rho" value="false"/>
+            <parameter key="kendall_tau" value="false"/>
+            <parameter key="absolute_error" value="false"/>
+            <parameter key="relative_error" value="false"/>
+            <parameter key="relative_error_lenient" value="false"/>
+            <parameter key="relative_error_strict" value="false"/>
+            <parameter key="normalized_absolute_error" value="false"/>
+            <parameter key="root_mean_squared_error" value="false"/>
+            <parameter key="root_relative_squared_error" value="false"/>
+            <parameter key="squared_error" value="false"/>
+            <parameter key="correlation" value="false"/>
+            <parameter key="squared_correlation" value="false"/>
+            <parameter key="cross-entropy" value="false"/>
+            <parameter key="margin" value="false"/>
+            <parameter key="soft_margin_loss" value="false"/>
+            <parameter key="logistic_loss" value="false"/>
+            <parameter key="skip_undefined_labels" value="true"/>
+            <parameter key="use_example_weights" value="true"/>
+            <list key="class_weights"/>
+          </operator>
+          <connect from_port="in 1" to_op="Label = risk_level (train)" to_port="example set input"/>
+          <connect from_port="in 2" to_op="Label = risk_level(test)" to_port="example set input"/>
+          <connect from_op="Label = risk_level(test)" from_port="example set output" to_op="TEST (Select) (2)" to_port="example set input"/>
+          <connect from_op="TEST (Select) (2)" from_port="example set output" to_op="Apply Model (E2)" to_port="unlabelled data"/>
+          <connect from_op="Label = risk_level (train)" from_port="example set output" to_op="TRAIN (Select) (2)" to_port="example set input"/>
+          <connect from_op="TRAIN (Select) (2)" from_port="example set output" to_op="Random Forest (2)" to_port="training set"/>
+          <connect from_op="Random Forest (2)" from_port="model" to_op="Apply Model (E2)" to_port="model"/>
+          <connect from_op="Apply Model (E2)" from_port="labelled data" to_op="Performance (E2)" to_port="labelled data"/>
+          <connect from_op="Apply Model (E2)" from_port="model" to_port="out 3"/>
+          <connect from_op="Performance (E2)" from_port="performance" to_port="out 1"/>
+          <connect from_op="Performance (E2)" from_port="example set" to_port="out 2"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="source_in 3" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+          <portSpacing port="sink_out 3" spacing="0"/>
+          <portSpacing port="sink_out 4" spacing="0"/>
+          <description align="center" color="yellow" colored="false" height="157" resized="false" width="180" x="1137" y="799">EXPERIMENTO 1&lt;br&gt;&lt;br&gt;- Random Forest&lt;br&gt;- Label = risk_level&lt;br&gt;- Se excluyen unit_number, time_in_cycles,&lt;br&gt;RUL, RUL_capado, risk_level_capped.</description>
+        </process>
+      </operator>
+      <connect from_op="Retrieve TEST_FD001_FINAL" from_port="output" to_op="Multiply (2)" to_port="input"/>
+      <connect from_op="Multiply (2)" from_port="output 1" to_op="Experimento 1" to_port="in 2"/>
+      <connect from_op="Multiply (2)" from_port="output 2" to_op="Experimento 2" to_port="in 2"/>
+      <connect from_op="Multiply (2)" from_port="output 3" to_op="Experimento 3" to_port="in 2"/>
+      <connect from_op="Multiply (2)" from_port="output 4" to_op="Experimento 4" to_port="in 2"/>
+      <connect from_op="Retrieve TRAIN_FD001_FINAL" from_port="output" to_op="Multiply" to_port="input"/>
+      <connect from_op="Multiply" from_port="output 1" to_op="Experimento 1" to_port="in 1"/>
+      <connect from_op="Multiply" from_port="output 2" to_op="Experimento 2" to_port="in 1"/>
+      <connect from_op="Multiply" from_port="output 3" to_op="Experimento 3" to_port="in 1"/>
+      <connect from_op="Multiply" from_port="output 4" to_op="Experimento 4" to_port="in 1"/>
+      <connect from_op="Experimento 4" from_port="out 1" to_port="result 10"/>
+      <connect from_op="Experimento 4" from_port="out 2" to_port="result 11"/>
+      <connect from_op="Experimento 4" from_port="out 3" to_port="result 12"/>
+      <connect from_op="Experimento 3" from_port="out 1" to_port="result 7"/>
+      <connect from_op="Experimento 3" from_port="out 2" to_port="result 8"/>
+      <connect from_op="Experimento 3" from_port="out 3" to_port="result 9"/>
+      <connect from_op="Experimento 1" from_port="out 1" to_port="result 1"/>
+      <connect from_op="Experimento 1" from_port="out 2" to_port="result 2"/>
+      <connect from_op="Experimento 1" from_port="out 3" to_port="result 3"/>
+      <connect from_op="Experimento 2" from_port="out 1" to_port="result 4"/>
+      <connect from_op="Experimento 2" from_port="out 2" to_port="result 5"/>
+      <connect from_op="Experimento 2" from_port="out 3" to_port="result 6"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+      <portSpacing port="sink_result 4" spacing="0"/>
+      <portSpacing port="sink_result 5" spacing="0"/>
+      <portSpacing port="sink_result 6" spacing="0"/>
+      <portSpacing port="sink_result 7" spacing="0"/>
+      <portSpacing port="sink_result 8" spacing="0"/>
+      <portSpacing port="sink_result 9" spacing="0"/>
+      <portSpacing port="sink_result 10" spacing="0"/>
+      <portSpacing port="sink_result 11" spacing="0"/>
+      <portSpacing port="sink_result 12" spacing="0"/>
+      <portSpacing port="sink_result 13" spacing="0"/>
+      <description align="center" color="yellow" colored="false" height="157" resized="false" width="180" x="1124" y="759">El mejor Accuracy lo tiene el&lt;br/&gt;Experimento 3:&lt;br/&gt;Label: risk_level_capped&lt;br/&gt;Variables excluidas:&lt;br/&gt;- risk_level&lt;br/&gt;- unit_number&lt;br/&gt;- RUL&lt;br/&gt;- RUL_capado</description>
+    </process>
+  </operator>
+</process>

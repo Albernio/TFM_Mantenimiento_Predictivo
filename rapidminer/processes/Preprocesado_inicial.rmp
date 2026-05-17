@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="12.0.005">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="12.0.005" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="12.0.005" expanded="true" height="68" name="Retrieve TEST_FD001_RUL" width="90" x="112" y="289">
+        <parameter key="repository_entry" value="../data/TEST_FD001_RUL"/>
+      </operator>
+      <operator activated="true" class="blending:generate_columns" compatibility="12.0.005" expanded="true" height="82" name="TEST Generate risk_level" width="90" x="514" y="238">
+        <list key="function_descriptions">
+          <parameter key="risk_level" value="if(RUL &lt;= 30, &quot;Alto&quot;, if(RUL &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+          <parameter key="risk_level_capped" value="if(RUL_capado &lt;= 30, &quot;Alto&quot;, if(RUL_capado &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+        </list>
+        <parameter key="keep_all_columns" value="true"/>
+        <parameter key="default_time_zone" value="Europe/Madrid"/>
+      </operator>
+      <operator activated="true" class="write_csv" compatibility="12.0.005" expanded="true" height="82" name="Write CSV (2)" width="90" x="715" y="238">
+        <parameter key="csv_file" value="C:/Users/alber/Desktop/TFM_Mantenimiento/rapidminer/data/TEST_FD001_FINAL.csv"/>
+        <parameter key="column_separator" value=";"/>
+        <parameter key="write_attribute_names" value="true"/>
+        <parameter key="quote_nominal_values" value="true"/>
+        <parameter key="format_date_attributes" value="true"/>
+        <parameter key="date_format" value="yyyy-MM-dd HH:mm:ss"/>
+        <parameter key="append_to_file" value="false"/>
+        <parameter key="encoding" value="SYSTEM"/>
+      </operator>
+      <operator activated="true" class="store" compatibility="12.0.005" expanded="true" height="68" name="Store (2)" width="90" x="916" y="238">
+        <parameter key="repository_entry" value="../data/TEST_FD001_FINAL"/>
+      </operator>
+      <operator activated="true" class="retrieve" compatibility="12.0.005" expanded="true" height="68" name="Retrieve TRAIN_FD001_RUL_01" width="90" x="112" y="85">
+        <parameter key="repository_entry" value="../data/TRAIN_FD001_RUL_01"/>
+      </operator>
+      <operator activated="true" class="retrieve" compatibility="12.0.005" expanded="true" height="68" name="Retrieve TRAIN_FD001_RUL_02" width="90" x="112" y="187">
+        <parameter key="repository_entry" value="../data/TRAIN_FD001_RUL_02"/>
+      </operator>
+      <operator activated="true" class="append" compatibility="12.0.005" expanded="true" height="103" name="Append" width="90" x="313" y="136">
+        <parameter key="data_management" value="auto"/>
+        <parameter key="merge_type" value="all"/>
+      </operator>
+      <operator activated="true" class="blending:generate_columns" compatibility="12.0.005" expanded="true" height="82" name="TRAIN Generate risk_level" width="90" x="514" y="136">
+        <list key="function_descriptions">
+          <parameter key="risk_level" value="if(RUL &lt;= 30, &quot;Alto&quot;, if(RUL &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+          <parameter key="risk_level_capped" value="if(RUL_capado &lt;= 30, &quot;Alto&quot;, if(RUL_capado &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+        </list>
+        <parameter key="keep_all_columns" value="true"/>
+        <parameter key="default_time_zone" value="Europe/Madrid"/>
+      </operator>
+      <operator activated="true" class="write_csv" compatibility="12.0.005" expanded="true" height="82" name="Write CSV" width="90" x="715" y="136">
+        <parameter key="csv_file" value="C:/Users/alber/Desktop/TFM_Mantenimiento/rapidminer/data/TRAIN_FD001_FINAL.csv"/>
+        <parameter key="column_separator" value=";"/>
+        <parameter key="write_attribute_names" value="true"/>
+        <parameter key="quote_nominal_values" value="true"/>
+        <parameter key="format_date_attributes" value="true"/>
+        <parameter key="date_format" value="yyyy-MM-dd HH:mm:ss"/>
+        <parameter key="append_to_file" value="false"/>
+        <parameter key="encoding" value="SYSTEM"/>
+      </operator>
+      <operator activated="true" class="store" compatibility="12.0.005" expanded="true" height="68" name="Store" width="90" x="916" y="136">
+        <parameter key="repository_entry" value="../data/TRAIN_FD001_FINAL"/>
+      </operator>
+      <connect from_op="Retrieve TEST_FD001_RUL" from_port="output" to_op="TEST Generate risk_level" to_port="table input"/>
+      <connect from_op="TEST Generate risk_level" from_port="table output" to_op="Write CSV (2)" to_port="input"/>
+      <connect from_op="Write CSV (2)" from_port="through" to_op="Store (2)" to_port="input"/>
+      <connect from_op="Store (2)" from_port="through" to_port="result 2"/>
+      <connect from_op="Retrieve TRAIN_FD001_RUL_01" from_port="output" to_op="Append" to_port="example set 1"/>
+      <connect from_op="Retrieve TRAIN_FD001_RUL_02" from_port="output" to_op="Append" to_port="example set 2"/>
+      <connect from_op="Append" from_port="merged set" to_op="TRAIN Generate risk_level" to_port="table input"/>
+      <connect from_op="TRAIN Generate risk_level" from_port="table output" to_op="Write CSV" to_port="input"/>
+      <connect from_op="Write CSV" from_port="through" to_op="Store" to_port="input"/>
+      <connect from_op="Store" from_port="through" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+    </process>
+  </operator>
+</process>
