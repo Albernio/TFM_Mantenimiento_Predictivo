@@ -17,8 +17,8 @@
       </operator>
       <operator activated="true" class="blending:generate_columns" compatibility="12.0.005" expanded="true" height="82" name="TEST Generate risk_level" width="90" x="514" y="238">
         <list key="function_descriptions">
-          <parameter key="risk_level" value="if(RUL &lt;= 30, &quot;Alto&quot;, if(RUL &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
-          <parameter key="risk_level_capped" value="if(RUL_capado &lt;= 30, &quot;Alto&quot;, if(RUL_capado &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+          <parameter key="risk_level" value="if(RUL &lt;= 45, &quot;Alto&quot;, if(RUL &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+          <parameter key="risk_level_capped" value="if(RUL_capado &lt;= 45, &quot;Alto&quot;, if(RUL_capado &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
         </list>
         <parameter key="keep_all_columns" value="true"/>
         <parameter key="default_time_zone" value="Europe/Madrid"/>
@@ -48,8 +48,8 @@
       </operator>
       <operator activated="true" class="blending:generate_columns" compatibility="12.0.005" expanded="true" height="82" name="TRAIN Generate risk_level" width="90" x="514" y="136">
         <list key="function_descriptions">
-          <parameter key="risk_level" value="if(RUL &lt;= 30, &quot;Alto&quot;, if(RUL &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
-          <parameter key="risk_level_capped" value="if(RUL_capado &lt;= 30, &quot;Alto&quot;, if(RUL_capado &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+          <parameter key="risk_level" value="if(RUL &lt;= 45, &quot;Alto&quot;, if(RUL &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
+          <parameter key="risk_level_capped" value="if(RUL_capado &lt;= 45, &quot;Alto&quot;, if(RUL_capado &lt;= 80, &quot;Medio&quot;, &quot;Bajo&quot;))"/>
         </list>
         <parameter key="keep_all_columns" value="true"/>
         <parameter key="default_time_zone" value="Europe/Madrid"/>
