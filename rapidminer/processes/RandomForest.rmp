@@ -209,7 +209,7 @@
           <portSpacing port="sink_out 2" spacing="0"/>
           <portSpacing port="sink_out 3" spacing="0"/>
           <portSpacing port="sink_out 4" spacing="0"/>
-          <description align="center" color="yellow" colored="false" height="175" resized="false" width="180" x="1137" y="799">EXPERIMENTO 1&lt;br&gt;&lt;br&gt;- Random Forest&lt;br&gt;- Label = risk_level_capped&lt;br&gt;- Se excluyen unit_number,&lt;br&gt;RUL, RUL_capado, risk_level.</description>
+          <description align="center" color="yellow" colored="false" height="175" resized="false" width="180" x="1137" y="799">EXPERIMENTO 3&lt;br&gt;&lt;br&gt;- Random Forest&lt;br&gt;- Label = risk_level_capped&lt;br&gt;- Se excluyen unit_number,&lt;br&gt;RUL, RUL_capado, risk_level.</description>
         </process>
       </operator>
       <operator activated="true" class="subprocess" compatibility="12.0.005" expanded="true" height="124" name="Experimento 1" width="90" x="782" y="85">
@@ -440,7 +440,7 @@
       <portSpacing port="sink_result 11" spacing="0"/>
       <portSpacing port="sink_result 12" spacing="0"/>
       <portSpacing port="sink_result 13" spacing="0"/>
-      <description align="center" color="yellow" colored="false" height="157" resized="false" width="180" x="1124" y="759">El mejor Accuracy lo tiene el&lt;br/&gt;Experimento 3:&lt;br/&gt;Label: risk_level_capped&lt;br/&gt;Variables excluidas:&lt;br/&gt;- risk_level&lt;br/&gt;- unit_number&lt;br/&gt;- RUL&lt;br/&gt;- RUL_capado</description>
+      <description align="center" color="yellow" colored="false" height="193" resized="false" width="180" x="1124" y="759">El mejor Accuracy y Recall para High Risk lo tiene el&lt;br&gt;Experimento 3:&lt;br&gt;Label: risk_level_capped&lt;br&gt;Variables excluidas:&lt;br&gt;- risk_level&lt;br&gt;- unit_number&lt;br&gt;- RUL&lt;br&gt;- RUL_capado</description>
     </process>
   </operator>
 </process>
